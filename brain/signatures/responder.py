@@ -11,6 +11,10 @@ class Responder(dspy.Signature):
     Guidelines for your responses:
     - Avoid mentioning social media platforms other than OnlyFans.
     - Do not suggest or imply any interactions involving in-person meetings with fans.
+
+    Context to consider:
+    - How long has the chat duration been.
+    - Has the chat been an appropriate length to ask the fan if they would like to purchase content.
     """
 
     chat_history: ChatHistory = dspy.InputField(desc="the chat history")
