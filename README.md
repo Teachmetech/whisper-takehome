@@ -1,49 +1,70 @@
-So instead of doing a basic off-the-shelf take home which is probably now easily solved using chatgpt or something, I thought it'd be better to have it be more custom-fit to the problem Whisper is solving.
+# Whisper Take-Home Assessment
 
-# Project Overview
+**Name:** Varand Abrahamian  
+**Email:** Contact@varand.me  
 
-This takehome is basically a super dumbed down version of the product Whisper makes. It uses DSPy, which is a tool useful for making LLM-based applications. It has some pretty interesting abstractions which I like and have found convenient for tinkering and building in the space we're working in.
+## Introduction
 
-The takehome already contains a somewhat functioning chatbot. The first step is to get the chatbot to run and talk to it. If you're using VS code, to do this, add the following vs code configuration and press play:
+This take-home assessment for Whisper involves building upon an existing chatbot powered by DSPy. The primary goal is to enhance the chatbot's capabilities to better reflect Whisper's product focus, including improving personality emulation, incorporating context awareness, filtering topics, and identifying further product enhancements.
 
-{
-    "name": "Python: local_chat",
-    "type": "python",
-    "request": "launch",
-    "program": "${workspaceFolder}/brain/chat_interface.py",
-    "console": "integratedTerminal",
-    "env": {
-        "TOGETHER_API_KEY": ${api key here. You can make a free account at together.ai to get an api key},
-    }
-},
+My background lies primarily in building REST APIs using Python/Django/Flask. While I am not an AI expert, I approached this project as an opprtunity to learn more about LLMs and AI in general, spending significant time understanding the DSPy framework and how to leverage it effectively.
 
-Then you can chat with the chatbot. Let me know if you have issues doing this.
+---
 
-# Goals
+## Implementation Details
 
-This chatbot as it stands is pretty basic. For one, we want it to sound more like our client. We have already collected a few fake example conversations in training_data/conversations.json. We also want to improve it more generally.
+### 1. **Improve Client Personality Emulation**
+To address this, I:
+- **Created a Helper Class**: Added a helper class in `utils/data_loader.py` to load `conversations.json` and convert the JSON into the training format required by DSPy.
+- **Enhanced the Chatbot Module**: Added a method in `modules/chatter.py` that automatically optimizes the chatbot's responses using DSPy's `KNNFewShot` optimizer based on the loaded training examples. 
+- **Known Issue**: The re-optimization process currently occurs with every message sent instead of only during the object's initialization. Despite debugging attempts, this issue persists.
 
-1. **Improve Client Personality Emulation**  
-   Use DSPy’s KNNFewShot optimizer (https://dspy.ai/learn/optimization/optimizers/) to make the chatbot’s responses reflect our client’s voice more authentically, based on examples in `conversations.json`.
+### 2. **Incorporate Context Awareness**
+- Added `timestamp` and `created_at` fields to the `ChatMessage` and `ChatHistory` models, respectively, for tracking the start time and duration of conversations.
+- Modified `responder.py` to include a **context prompt** that considers the length of the conversation. For example, when the conversation reaches a sufficient length, the chatbot can suggest exclusive content for purchase.
+- **Approach**: While I integrated this prompt directly into the wider prompt for simplicity, a modular application would likely separate these elements for better maintainability.
 
-2. **Incorporate Context Awareness**  
-   Introduce context awareness in a way that makes the chatbot more responsive to the timing and circumstances of each interaction. Examples might include awareness of the current time or the duration of a conversation.
+### 3. **Topic Filtering**
+- Ensured topic filtering by appending conditions to the chatbot's responder signature. The chatbot avoids discussing topics such as social media platforms (except OnlyFans) and refrains from suggesting in-person meetings with fans.
+- **Approach**: Similarly to context awareness, I embedded this functionality within the wider prompt for simplicity, though a modular approach would isolate it in a dedicated signature.
 
-3. **Topic Filtering**  
-   Ensure the chatbot avoids discussing specific topics that may not be suitable. For this exercise, keep responses free of mentions of social media platforms (except OnlyFans) and interactions suggesting in-person meetings with fans.
+### 4. **Further Product Enhancements**
+- Enhanced the context-awareness feature to:
+  - Determine when to propose exclusive content to the user based on conversation length and user prompts.
+  - Incorporate metadata into responses (e.g., the content's sales price or details).
+- This approach improves the chatbot's monetization potential and user experience.
 
-4. **Further Product Enhancements**  
-   Identify and implement an additional enhancement that you believe would improve the product experience.
+---
 
-The first goal is probably the hardest, but I want it done first and it will be what I look at closest. The things I'm looking for are 1. Can you quickly learn a new framework/new technology 2. How do you think about product improvements 2. 
-How do you think about implementing these product improvements using dspy.
+## Extra Considerations
 
-I'm not holding your hand much on this take-home on purpose as I'd like to feel confident you can take on these challenges independently.
+### 1. **Development Observations**
+While working on this project, I encountered several deprecated and soon-to-be-deprecated features in the DSPy library:
+- `TypedPredictors` are deprecated as of DSPy 2.5.16.
+- Many LM clients (e.g., Together) underperform and will be removed in DSPy 2.6.
+- The `teleprompt` feature is being phased out in favor of the `optimizer` feature.
 
-**Note**: Avoid spending time on extensive prompt engineering. At Whisper, we value modular and maintainable code, and we prefer optimizations within DSPy itself rather than large, static prompts. Also, to see the actual prompts dspy is generating, uncomment the lm.inspect_history(n=1) line in `chat_interface.py`.
+### 2. **Further Enhancements**
+Here are some additional suggestions to further enhance the chatbot:
+1. **Knowledge Integration Using RAG (e.g., ColBERTv2)**:  
+   - Enabling the chatbot to access external knowledge for domain-specific inquiries, such as responding to questions about specific content or production details. For example if the client is an adult actress and I was to ask “I really liked the sceane you did on Brazzers in 2019, did you direct that yourself?” it would be able to respond appropriately
+2. **Content Awareness and Metadata**:  
+   - Equip the chatbot with detailed knowledge about the client's exclusive content (e.g., acts, prices, recording dates).
+3. **Contextual Proposals**:  
+   - Strategically propose content purchases based on user prompts and conversation progression.
+4. **Negotiation Features**:  
+   - Enable dynamic price negotiations, allowing creators to set a maximum discount through the Whisper portal.
+5. **Bundling and Upselling**:  
+   - Suggest bundles of similar content or offer upsells to maximize revenue.
 
-Please leave comments or notes on your thought process and what you built in a separate README file for me to take a look at.
+---
 
-I am expecting you to work on this for 2-3 hours. You can work on it longer if you'd like, just let me know how long you end up working on it.
+## Time Spent
 
-Good luck!
+This project took me approximately 6 hours to complete, including time spent researching DSPy and understanding its abstractions. As someone with more experience in Python backend development than LLMs or DSPy, I spent additional time learning about these technologies.
+
+---
+
+## Conclusion
+
+This project was both challenging and rewarding, offering insights into LLM-based application development and exposing me to innovative frameworks like DSPy. It's always interesting to me to look back and realize how much I've learned in just a day.
